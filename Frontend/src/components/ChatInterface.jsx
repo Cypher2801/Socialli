@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send } from 'lucide-react';
 import axios from 'axios';
+import parse from 'html-react-parser';
+
 
 const ChatMessage = ({ text, isUser }) => (
   <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
@@ -13,10 +15,68 @@ const ChatMessage = ({ text, isUser }) => (
         isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
       }`}
     >
-      {text}
+      {parse(text)}
     </div>
   </div>
 );
+
+const formatMarkdownResponse = (text) => {
+  // Helper function to convert markdown headings
+  const formatHeadings = (text) => {
+    return text.replace(/^##\s+(.+)$/gm, '<h2>$1</h2>')
+              .replace(/^#\s+(.+)$/gm, '<h1>$1</h1>');
+  };
+
+  // Helper function to convert bold text
+  const formatBold = (text) => {
+    return text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  };
+
+  // Helper function to convert bullet points
+  const formatBullets = (text) => {
+    const bulletPattern = /^\*\s+(.+)$/gm;
+    let matches = text.match(bulletPattern);
+    
+    if (matches) {
+      let bulletHtml = '<ul>';
+      matches.forEach(match => {
+        const content = match.replace(/^\*\s+/, '');
+        bulletHtml += `\n  <li>${content}</li>`;
+      });
+      bulletHtml += '\n</ul>';
+      
+      text = text.replace(/(\*\s+.+\n?)+/g, bulletHtml);
+    }
+    return text;
+  };
+
+  // Helper function to handle sections
+  const formatSections = (text) => {
+    // Convert placeholder for charts/visuals
+    text = text.replace(/\[Insert.*?\]/g, '<div class="chart-placeholder">Chart Placeholder</div>');
+    
+    // Add section dividers
+    text = text.split('\n\n').map(section => {
+      if (section.trim().startsWith('<')) return section;
+      return `<section>${section}</section>`;
+    }).join('\n\n');
+    
+    return text;
+  };
+
+  // Main formatting pipeline
+  let formattedText = text;
+  formattedText = formatHeadings(formattedText);
+  formattedText = formatBold(formattedText);
+  formattedText = formatBullets(formattedText);
+  formattedText = formatSections(formattedText);
+  
+  // Wrap in container
+  formattedText = `<div class="formatted-content">${formattedText}</div>`;
+  
+  return formattedText;
+};
+
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState([]);
@@ -47,11 +107,13 @@ export default function ChatInterface() {
           'Content-Type': 'application/json'
         }
       });
-
+      const formattedData = formatMarkdownResponse(data.reply);
+      const formattedUserData = formatMarkdownResponse(text);
       setMessages(prev => [...prev, 
-        { text, isUser: true },
-        { text: data.reply, isUser: false }
+        { text : formattedUserData, isUser: true },
+        { text: formattedData, isUser: false }
       ]);
+      console.log(messages)
     } catch (error) {
       console.error('Chat API Error:', error);
       setMessages(prev => [...prev,

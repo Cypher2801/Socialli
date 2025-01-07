@@ -4,7 +4,7 @@ const LangflowClient = require('./LangFlowClient');
 
 const langflowClient = new LangflowClient(
     'https://api.langflow.astra.datastax.com',
-    'AstraCS:SsHHRFpReegTBFfgnCCyQJJG:0da877e7b859b709f5f5c25ae2470f512b9e630df7b47677cc40b185c98a1236'
+    'AstraCS:pmloexBUnsRqhbqXyONUAOtg:29a842326ba5bdcd0981611d99add83e71ba1e3c5b1cd4024323b28fdd5e3747'
 );
 
 router.post('/chat', async (req, res) => {
@@ -14,8 +14,8 @@ router.post('/chat', async (req, res) => {
     }
 
     try {
-        const flowIdOrName = 'a935abb5-e941-43fc-8299-45603f3d71a8';
-        const langflowId = '54ce131f-1fbd-4d8c-a787-35c2e8a16fac';
+        const flowIdOrName = 'ae599132-587e-466d-957c-cced86f617b7';
+        const langflowId = 'b3b0b7ee-b77c-4c7f-a366-995e954e58be';
         const tweaks = {
             "ChatInput-oSiGG": {},
             "ChatOutput-fmaeT": {},
@@ -39,6 +39,7 @@ router.post('/chat', async (req, res) => {
             tweaks,
             false
         );
+        console.log(response.outputs[0].outputs[0].results.message.text)
         if (response?.outputs?.[0]?.outputs?.[0]?.results?.message?.text) {
             return res.json({ 
                 reply: response.outputs[0].outputs[0].results.message.text 
