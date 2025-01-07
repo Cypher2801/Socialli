@@ -18,7 +18,7 @@ const getPostTypeIcon = (type) => {
 };
 
 const PostList = ({ posts }) => (
-  <Card>
+  <Card className="sm:max-w-3xl mx-auto">
     <CardHeader>
       <CardTitle>Recent Posts</CardTitle>
       <CardDescription>Latest posts and their performance</CardDescription>
@@ -30,7 +30,7 @@ const PostList = ({ posts }) => (
             <div className="flex items-center space-x-8 sm:space-x-4">
               {getPostTypeIcon(post.type)}
               <Badge variant="secondary" className="capitalize bg-rose-500 text-white">{post.type}</Badge>
-              <span className="text-sm text-muted-foreground ">{post.date}</span>
+              {/* <span className="text-sm text-muted-foreground ">{post.date}</span> */}
             </div>
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-1 text-[15px]">
