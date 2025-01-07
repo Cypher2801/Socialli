@@ -6,7 +6,7 @@ import { MetricsOverview } from './components/MetricsComponent';
 import { PostTypeDistribution, EngagementChart, SentimentChart } from './components/ChartComponent';
 import PostList from './components/PostList';
 import ChatInterface from './components/ChatInterface';
-
+import PostTypePieChart from './components/PostTypePieChart';
 // Sample data
 const posts = [
   { type: 'reel', likes: 1200, comments: 45, shares: 20, sentiment: 0.8, date: '2024-01-01' },
@@ -68,15 +68,17 @@ const Dashboard = () => {
         {/* Main Content Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="assistant">AI Assistant</TabsTrigger>            
             <TabsTrigger value="engagement">Engagement</TabsTrigger>
-            <TabsTrigger value="sentiment">Sentiment</TabsTrigger>
-            <TabsTrigger value="assistant">AI Assistant</TabsTrigger>
+            <TabsTrigger value="sentiment">Sentiment</TabsTrigger>            
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
+            <h2 className="text-xl font-semibold">Post Type Distribution</h2>
             <PostTypeDistribution postTypeData={postTypeData} />
-            <PostList posts={posts} />
+            <h2 className="text-xl font-semibold">Post Type Pie Chart</h2>
+            <PostTypePieChart postTypeData={postTypeData} />
           </TabsContent>
 
           <TabsContent value="engagement">
@@ -90,6 +92,7 @@ const Dashboard = () => {
           <TabsContent value="assistant">
             <ChatInterface />
           </TabsContent>
+          <PostList posts={posts} />
         </Tabs>
       </div>
     </div>

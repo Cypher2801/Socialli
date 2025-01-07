@@ -26,22 +26,22 @@ const PostList = ({ posts }) => (
     <CardContent>
       <div className="space-y-4">
         {posts.map((post, index) => (
-          <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
-            <div className="flex items-center space-x-4">
+          <div key={index} className="base:flex-col sm:flex space-y-6 sm:space-y-0 items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+            <div className="flex items-center space-x-8 sm:space-x-4">
               {getPostTypeIcon(post.type)}
-              <Badge variant="secondary" className="capitalize">{post.type}</Badge>
-              <span className="text-sm text-muted-foreground">{post.date}</span>
+              <Badge variant="secondary" className="capitalize bg-rose-500 text-white">{post.type}</Badge>
+              <span className="text-sm text-muted-foreground ">{post.date}</span>
             </div>
             <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 text-[15px]">
                 <HeartIcon className="w-4 h-4 text-rose-500" />
                 <span>{post.likes.toLocaleString()}</span>
               </div>
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 text-[15px]">
                 <MessageCircle className="w-4 h-4 text-blue-500" />
                 <span>{post.comments.toLocaleString()}</span>
               </div>
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 text-[15px]">
                 <Share2 className="w-4 h-4 text-green-500" />
                 <span>{post.shares.toLocaleString()}</span>
               </div>
