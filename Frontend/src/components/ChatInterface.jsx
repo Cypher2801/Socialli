@@ -1,103 +1,102 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send } from 'lucide-react';
+import axios from 'axios';
 
-const QuickQuestions = ({ onSelectQuestion }) => {
-  const questions = [
-    "What's the best performing post type?",
-    "How's the sentiment trending?",
-    "Show engagement statistics",
-    "Compare post performance"
-  ];
-
-  return (
-    <div className="flex gap-2 mb-4 flex-wrap">
-      {questions.map((question, index) => (
-        <Button
-          key={index}
-          variant="outline"
-          size="sm"
-          onClick={() => onSelectQuestion(question)}
-          className="text-sm"
-        >
-          {question}
-        </Button>
-      ))}
-    </div>
-  );
-};
-
-const ChatMessage = ({ message, isUser }) => (
+const ChatMessage = ({ text, isUser }) => (
   <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
     <div
       className={`max-w-[80%] p-3 rounded-lg ${
         isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
       }`}
     >
-      {message}
+      {text}
     </div>
   </div>
 );
 
-const ChatInterface = () => {
-  const [messages, setMessages] = useState([
-    { text: "Hello! How can I help you analyze your social media performance?", isUser: false }
-  ]);
-  const [inputValue, setInputValue] = useState("");
+export default function ChatInterface() {
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const scrollRef = useRef(null);
 
-  const handleSend = () => {
-    if (inputValue.trim()) {
-      setMessages([...messages, { text: inputValue, isUser: true }]);
-      setTimeout(() => {
-        setMessages(prev => [...prev, {
-          text: "I'm analyzing your request. Here's what I found...",
-          isUser: false
-        }]);
-      }, 1000);
-      setInputValue("");
+  useEffect(() => {
+    setMessages([{ 
+      text: "Hello! How can I help you analyze your social media performance?",
+      isUser: false 
+    }]);
+  }, []);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const sendMessage = async (text) => {
+    try {
+      setIsLoading(true);
+      const { data } = await axios.post('http://localhost:3000/api/chat', {
+        message: text
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      setMessages(prev => [...prev, 
+        { text, isUser: true },
+        { text: data.reply, isUser: false }
+      ]);
+    } catch (error) {
+      console.error('Chat API Error:', error);
+      setMessages(prev => [...prev,
+        { text, isUser: true },
+        { text: "Sorry, I encountered an error. Please try again.", isUser: false }
+      ]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleQuestion = (question) => {
-    setMessages([...messages, { text: question, isUser: true }]);
-    setTimeout(() => {
-      setMessages(prev => [...prev, {
-        text: `Analyzing ${question.toLowerCase()}...`,
-        isUser: false
-      }]);
-    }, 1000);
+  const handleSubmit = (e) => {
+    e?.preventDefault();
+    if (input.trim() && !isLoading) {
+      sendMessage(input.trim());
+      setInput("");
+    }
   };
 
   return (
-    <Card className="w-full mt-6">
+    <Card className="w-full max-w-2xl mx-auto mt-6">
       <CardHeader>
         <CardTitle>AI Assistant</CardTitle>
         <CardDescription>Ask questions about your social media performance</CardDescription>
-        <QuickQuestions onSelectQuestion={handleQuestion} />
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[400px] pr-4 mb-4">
-          {messages.map((message, index) => (
-            <ChatMessage key={index} {...message} />
-          ))}
+        <ScrollArea className="h-[400px] mb-4" ref={scrollRef}>
+          <div className="px-4">
+            {messages.map((msg, idx) => (
+              <ChatMessage key={idx} {...msg} />
+            ))}
+          </div>
         </ScrollArea>
-        <div className="flex gap-2">
+        <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
-            placeholder="Type your question..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Type your message..."
+            disabled={isLoading}
           />
-          <Button onClick={handleSend}>
+          <Button type="submit" disabled={isLoading}>
             <Send className="w-4 h-4" />
           </Button>
-        </div>
+        </form>
       </CardContent>
     </Card>
   );
-};
-
-export default ChatInterface;
+}
