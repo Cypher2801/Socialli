@@ -68,6 +68,7 @@ const Dashboard = () => {
       count: typePosts.length,
       likes: Math.round(typePosts.reduce((acc, post) => acc + post.likes, 0) / typePosts.length),
       comments: Math.round(typePosts.reduce((acc, post) => acc + post.comments, 0) / typePosts.length),
+      shares: Math.round(typePosts.reduce((acc, post) => acc + post.shares, 0) / typePosts.length),
       engagement: Number((typePosts.reduce((acc, post) => acc + post.engagement, 0) / typePosts.length).toFixed(2)),
     };
   });

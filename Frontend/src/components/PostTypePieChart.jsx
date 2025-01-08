@@ -37,30 +37,23 @@ const PostTypePieChart = ({ postTypeData }) => {
   const metrics = [
     { name: 'Likes', key: 'likes' },
     { name: 'Comments', key: 'comments' },
-    { name: 'Engagement', key: 'engagement' }
+    { name: 'Shares', key: 'shares' }
   ];
 
-  const formatValue = (metric, value) => {
-    if (metric === 'engagement') {
-      return `${(value * 100).toFixed(2)}%`;
-    }
-    return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
+  const formatValue = (value) => {
+    return value ? value.toLocaleString(undefined, { maximumFractionDigits: 0 }) : '0';
   };
 
   const selectedTypeData = postTypeData.find(data => data.type === selectedType);
 
   const chartData = selectedTypeData ? metrics.map(metric => ({
     name: metric.name,
-    value: metric.key === 'engagement' ? selectedTypeData[metric.key] * 100 : selectedTypeData[metric.key],
-    isEngagement: metric.key === 'engagement'
+    value: selectedTypeData[metric.key] || 0,
   })) : [];
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
-      const value = formatValue(
-        payload[0].payload.isEngagement ? 'engagement' : 'other',
-        payload[0].payload.isEngagement ? payload[0].value / 100 : payload[0].value
-      );
+      const value = formatValue(payload[0].value);
       return (
         <div className="bg-white p-2 border rounded-lg shadow-sm">
           <p className="text-sm font-medium text-gray-900">
@@ -115,8 +108,8 @@ const PostTypePieChart = ({ postTypeData }) => {
                 fill="#8884d8"
                 dataKey="value"
                 labelLine={false}
-                label={({ name, value, isEngagement }) => 
-                  `${name} (${formatValue(isEngagement ? 'engagement' : 'other', isEngagement ? value / 100 : value)})`
+                label={({ name, value }) => 
+                  `${name} (${formatValue(value)})`
                 }
                 animationBegin={0}
                 animationDuration={ANIMATION_DURATION}
