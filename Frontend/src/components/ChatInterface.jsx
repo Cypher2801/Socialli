@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, ChevronDown } from 'lucide-react';
-import axios from 'axios';
+import { io } from 'socket.io-client';
 import parse from 'html-react-parser';
 
 const LoadingDots = () => (
@@ -138,12 +138,48 @@ export default function ChatInterface() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef(null);
+  const socketRef = useRef(null);
 
   useEffect(() => {
+    socketRef.current = io('http://localhost:3000', {
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000
+    });
+
+    socketRef.current.on('connect', () => {
+      console.log('Connected to chat server');
+    });
+
+    socketRef.current.on('bot_typing', (isTyping) => {
+      setIsLoading(isTyping);
+    });
+
+    socketRef.current.on('bot_response', (data) => {
+      const formattedResponse = formatMarkdownResponse(data.reply);
+      setMessages(prev => [...prev, { text: formattedResponse, isUser: false }]);
+      setIsLoading(false);
+    });
+
+    socketRef.current.on('error', (error) => {
+      console.error('Socket error:', error);
+      setMessages(prev => [...prev, {
+        text: "Sorry, I encountered an error. Please try again.",
+        isUser: false
+      }]);
+      setIsLoading(false);
+    });
+
     setMessages([{ 
-      text: "Hello! How can I help you analyze your social media performance? You can type your question or select from the quick questions below.",
+      text: formatMarkdownResponse("Hello! How can I help you analyze your social media performance? You can type your question or select from the quick questions below."),
       isUser: false 
     }]);
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -155,30 +191,15 @@ export default function ChatInterface() {
     }
   }, [messages]);
 
-  const sendMessage = async (text) => {
-    try {
-      setIsLoading(true);
-      const formattedUserData = formatMarkdownResponse(text);
-      setMessages(prev => [...prev, { text: formattedUserData, isUser: true }]);
-      
-      const { data } = await axios.post('http://localhost:3000/api/chat', {
-        message: text
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      const formattedData = formatMarkdownResponse(data.reply);
-      setMessages(prev => [...prev, { text: formattedData, isUser: false }]);
-    } catch (error) {
-      console.error('Chat API Error:', error);
-      setMessages(prev => [...prev, 
-        { text: "Sorry, I encountered an error. Please try again.", isUser: false }
-      ]);
-    } finally {
-      setIsLoading(false);
+  const sendMessage = (text) => {
+    if (!socketRef.current?.connected) {
+      console.error('Socket not connected');
+      return;
     }
+
+    const formattedUserMessage = formatMarkdownResponse(text);
+    setMessages(prev => [...prev, { text: formattedUserMessage, isUser: true }]);
+    socketRef.current.emit('chat_message', text);
   };
 
   const handleSubmit = (e) => {
