@@ -43,7 +43,7 @@ const QuickQuestions = ({ onSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
   
   const questions = [
-    "What's my engagement rate trend for all kind of posts?",
+    "What's the engagement rate trend for all kind of posts?",
     "What type of reel themes were the most popular",
     "Which type of post was the most appreciated?",
     "What type of content gets the most shares?",
