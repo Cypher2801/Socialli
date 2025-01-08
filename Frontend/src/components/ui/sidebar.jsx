@@ -95,7 +95,7 @@ export const MobileSidebar = ({
       >
         <div className="flex justify-end z-20 w-full">
           <Menu
-            className="text-neutral-800 dark:text-neutral-200 cursor-pointer"
+            className="text-neutral-800 dark:text-neutral-200 cursor-pointer text-lg"
             onClick={() => setOpen(!open)}
             style={{ width: "40px", height: "40px" }}
           />
