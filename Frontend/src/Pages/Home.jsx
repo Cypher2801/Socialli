@@ -80,15 +80,21 @@ const HomePage = () => {
     const teamMembers = [
         {
             name: "Kushagra Gupta",          
-            image: "/api/placeholder/200/200"
+            github : "https://github.com/Cypher2801",
+            linkedIn : "https://www.linkedin.com/in/kushagra-gupta-67b7b628a/",
+            image : "https://media.licdn.com/dms/image/v2/D4E03AQFylXUkgjFn_g/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1696499444058?e=1741824000&v=beta&t=y9xJYVHt-985DcSN_j8EoCO0wxhA21Wm01B75oiOlGA"
         },
         {
             name: "Naveen Patidar",
-            image: "/api/placeholder/200/200"
+            image: "https://media.licdn.com/dms/image/v2/D4D03AQHkWpgK0rF6qw/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1715831934026?e=1741824000&v=beta&t=gWiLqEcMDwcucArBxaozqcTx0oBUZl2tNeqWcNaE9fk",
+            github : "https://github.com/kraitop",
+            linkedIn : "https://www.linkedin.com/in/naveen-patidar-448a57288/"
         },
         {
             name: "Aniz Agarwal",
-            image: "/api/placeholder/200/200"
+            image: "https://res.cloudinary.com/dup5fitl6/image/upload/v1736357957/njsdpag8docq2lbhquyc.png",
+            github : "https://github.com/aniz-ag",
+            linkedIn : "https://www.linkedin.com/in/aniz-agarwal-2b1707292/"
         }
     ];
 
@@ -244,9 +250,12 @@ const HomePage = () => {
                                         <CardContent>
                                             <p className="text-center text-gray-600 dark:text-gray-300">{member.description}</p>
                                             <div className="flex justify-center space-x-4 mt-4">
+                                                <a href={`${member.github}`} target='_blank'>
                                                 <Github className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white cursor-pointer" />
-                                                <Twitter className="h-5 w-5 text-blue-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white cursor-pointer" />
+                                                </a>
+                                                <a href={`${member.linkedIn}`} target='_blank'>
                                                 <Linkedin className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white cursor-pointer" />
+                                                </a>
                                             </div>
                                         </CardContent>
                                     </Card>
