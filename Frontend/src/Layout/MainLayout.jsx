@@ -46,8 +46,8 @@ const MainLayout = () => {
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
             {/* Logo Section */}
             <div className="flex items-center justify-center h-16">
-              <div className="bg-blue-600 rounded-lg px-7 font-bold" >
-                {open? "Socialli":"S"}
+              <div className="bg-blue-600 rounded-lg font-bold" >
+                {open? <p className='px-7'>"Socialli"</p>: <img src='https://res.cloudinary.com/dup5fitl6/image/upload/v1736361367/eqgzjhzgmmfcw0d6tssl.webp' className='w-[30px] rounded-md'/>}
               </div>
             </div>
             
