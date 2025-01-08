@@ -54,8 +54,8 @@ const EngagementChart = ({ postTypeData }) => (
 const SentimentChart = ({ postTypeData }) => (
   <Card>
     <CardHeader>
-      <CardTitle>Sentiment Analysis</CardTitle>
-      <CardDescription>Average sentiment score by post type</CardDescription>
+      <CardTitle>Engagement Analysis</CardTitle>
+      <CardDescription>Average Engagement score by post type</CardDescription>
     </CardHeader>
     <CardContent className="pt-4">
       <ChartContainer config={chartConfig} className="h-[400px] w-full">
@@ -63,7 +63,7 @@ const SentimentChart = ({ postTypeData }) => (
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="type" tickLine={false} tickMargin={10} axisLine={false} />
           <ChartTooltip content={<ChartTooltipContent />} />
-          <Line type="monotone" dataKey="sentiment" stroke={chartConfig.colors.sentiment} strokeWidth={2} />
+          <Line type="monotone" dataKey="engagement" stroke={chartConfig.colors.sentiment} strokeWidth={2} />
         </LineChart>
       </ChartContainer>
     </CardContent>

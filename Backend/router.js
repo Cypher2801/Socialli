@@ -39,7 +39,6 @@ router.post('/chat', async (req, res) => {
             tweaks,
             false
         );
-        console.log(response.outputs[0].outputs[0].results.message.text)
         if (response?.outputs?.[0]?.outputs?.[0]?.results?.message?.text) {
             return res.json({ 
                 reply: response.outputs[0].outputs[0].results.message.text 
