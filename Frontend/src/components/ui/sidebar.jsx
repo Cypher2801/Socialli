@@ -59,24 +59,24 @@ export const DesktopSidebar = ({
   className,
   children,
   ...props
-}) => {
-  const { open, setOpen, animate } = useSidebar();
-  return (
-    <motion.div
+      }) => {
+      const { open, setOpen, animate } = useSidebar();
+      return (
+      <motion.div
       className={cn(
-        "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-gray-800 w-[300px] flex-shrink-0",
+        "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-gray-800 w-[250px] flex-shrink-0",
         className
       )}
       animate={{
-        width: animate ? (open ? "300px" : "60px") : "300px",
+        width: animate ? (open ? "200px" : "60px") : "60px",
       }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
       {...props}
-    >
+      >
       {children}
-    </motion.div>
-  );
+      </motion.div>
+      );
 };
 
 export const MobileSidebar = ({
@@ -89,7 +89,7 @@ export const MobileSidebar = ({
     <>
       <div
         className={cn(
-          "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-neutral-100 dark:bg-neutral-800 w-full"
+          "h-14 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-neutral-100 dark:bg-neutral-800 w-[40px]"
         )}
         {...props}
       >
@@ -97,14 +97,15 @@ export const MobileSidebar = ({
           <Menu
             className="text-neutral-800 dark:text-neutral-200 cursor-pointer"
             onClick={() => setOpen(!open)}
+            style={{ width: "40px", height: "40px" }}
           />
         </div>
         <AnimatePresence>
           {open && (
             <motion.div
-              initial={{ x: "-100%", opacity: 0 }}
+              initial={{ x: "-60%", opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "-100%", opacity: 0 }}
+              exit={{ x: "-60%", opacity: 0 }}
               transition={{
                 duration: 0.3,
                 ease: "easeInOut",

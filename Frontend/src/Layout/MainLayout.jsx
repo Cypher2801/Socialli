@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar, SidebarBody, SidebarLink } from '../components/ui/sidebar';
-import { 
-  Home,
-  ChartArea,
-  Sun,
-  Moon
-} from 'lucide-react';
-import { Outlet } from 'react-router-dom';
+import { Home, ChartArea, Sun, Moon } from 'lucide-react';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 
 const MainLayout = () => {
@@ -15,6 +10,8 @@ const MainLayout = () => {
     const savedTheme = localStorage.getItem('isDark');
     return savedTheme ? JSON.parse(savedTheme) : false;
   });
+
+  const location = useLocation();
 
   useEffect(() => {
     if (isDark) {
@@ -28,12 +25,12 @@ const MainLayout = () => {
     {
       label: "Home",
       href: "/",
-      icon: <Home className="h-5 w-5 flex-shrink-0" />
+      icon: <Home className="h-5 w-5 flex-shrink-0" />,
     },
     {
       label: "Dashboard",
       href: "/dashboard",
-      icon: <ChartArea className="h-5 w-5 flex-shrink-0" />
+      icon: <ChartArea className="h-5 w-5 flex-shrink-0" />,
     },
   ];
 
@@ -49,15 +46,31 @@ const MainLayout = () => {
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
             {/* Logo Section */}
             <div className="flex items-center justify-center h-16">
-              <div className="h-8 w-8 bg-blue-600 rounded-lg" />
+              <div className="bg-blue-600 rounded-lg px-7 font-bold" >
+                {open? "Socialli":"S"}
+              </div>
             </div>
             
             {/* Navigation Links */}
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
-                <SidebarLink key={idx} link={link} />
+                <SidebarLink
+                  key={idx}
+                  link={link}
+                  className={`${
+                    location.pathname === link.href
+                      ? "bg-blue-600 text-white"
+                      : "text-neutral-700 dark:text-neutral-200"
+                  } hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg flex items-center ${
+                    open ? "gap-2 p-2" : "justify-center p-4"
+                  }`}
+                >
+                  <div>{link.icon}</div>
+                  {open && <span>{link.label}</span>}
+                </SidebarLink>
               ))}
             </div>
+
 
             {/* Dark Mode Toggle */}
             <div className="mt-auto pt-4">

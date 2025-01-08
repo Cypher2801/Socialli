@@ -43,21 +43,19 @@ const QuickQuestions = ({ onSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
   
   const questions = [
-    "What's my engagement rate trend over the last month?",
-    "Which posts performed best this week?",
-    "How does my follower growth compare to last month?",
-    "What are the best times to post for my audience?",
+    "What's my engagement rate trend for all kind of posts?",
+    "What type of reel themes were the most popular",
+    "Which type of post was the most appreciated?",
     "What type of content gets the most shares?",
-    "How does my engagement compare to industry benchmarks?",
     "What hashtags are driving the most engagement?",
-    "Which platform is performing best for my content?"
+    "Which type of post has better prospects in future?"
   ];
 
   return (
     <div className="mb-4">
       <Button
         variant="outline"
-        className="w-full flex items-center justify-between"
+        className="w-full flex items-center justify-between border border-blue-500"
         onClick={() => setIsOpen(!isOpen)}
       >
         <span>Quick Questions</span>
@@ -171,7 +169,7 @@ export default function ChatInterface() {
     });
 
     setMessages([{ 
-      text: formatMarkdownResponse("Hello! How can I help you analyze your social media performance? You can type your question or select from the quick questions below."),
+      text: formatMarkdownResponse("Hello! How can I help you analyze your social media performance? You can type your question or select from the quick questions above."),
       isUser: false 
     }]);
 

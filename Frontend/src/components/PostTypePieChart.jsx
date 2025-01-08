@@ -13,7 +13,7 @@ const PostTypePieChart = ({ postTypeData }) => {
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-2 border rounded-lg shadow-sm">
+        <div className="bg-blue-800 p-2 border rounded-lg shadow-sm">
           <p className="text-sm font-medium">{`${payload[0].name}: ${payload[0].value}`}</p>
         </div>
       );
