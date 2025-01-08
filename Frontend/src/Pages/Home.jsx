@@ -6,6 +6,7 @@ import {
     Github, Twitter, Linkedin, Boxes, BarChart3, Users,
     LineChart, Lock, Zap, Share2, MessageSquare, TrendingUp,DatabaseZap
 } from "lucide-react";
+import { Cover } from '@/components/ui/cover';
 import { TracingBeam } from "@/components/ui/tracing-beam.jsx";
 import { TypewriterEffectSmooth } from '@/components/ui/typewriter-effect';
 const HomePage = () => {
@@ -118,6 +119,9 @@ const HomePage = () => {
                     {/* Hero Section */}
                     <section className="py-24 text-center">
                         <div className="space-y-6">
+                            <div className='w-2xl mb-20'>
+                                <Cover className={"text-7xl rounded p-9"}>Socialli</Cover>
+                            </div>
                             <div className="animate-fade-in space-y-6">
                             <TypewriterEffectSmooth words={words} className=""/>
                                 <p className="text-[16px] text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
