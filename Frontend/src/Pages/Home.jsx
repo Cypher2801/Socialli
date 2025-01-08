@@ -82,11 +82,11 @@ const HomePage = () => {
             name: "Kushagra Gupta",          
             github : "https://github.com/Cypher2801",
             linkedIn : "https://www.linkedin.com/in/kushagra-gupta-67b7b628a/",
-            image : "https://media.licdn.com/dms/image/v2/D4E03AQFylXUkgjFn_g/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1696499444058?e=1741824000&v=beta&t=y9xJYVHt-985DcSN_j8EoCO0wxhA21Wm01B75oiOlGA"
+            image : "https://res.cloudinary.com/dup5fitl6/image/upload/v1736358481/e8nyfxhodaueqo00fpwt.jpg"
         },
         {
             name: "Naveen Patidar",
-            image: "https://media.licdn.com/dms/image/v2/D4D03AQHkWpgK0rF6qw/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1715831934026?e=1741824000&v=beta&t=gWiLqEcMDwcucArBxaozqcTx0oBUZl2tNeqWcNaE9fk",
+            image: "https://res.cloudinary.com/dup5fitl6/image/upload/v1736358509/fxhrjeksfzaxm0moqeys.jpg",
             github : "https://github.com/kraitop",
             linkedIn : "https://www.linkedin.com/in/naveen-patidar-448a57288/"
         },
