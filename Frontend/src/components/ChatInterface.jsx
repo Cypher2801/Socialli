@@ -3,7 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, ChevronDown, Trash2, Bot, User, Clock } from 'lucide-react';
+import { Send, ChevronDown, Trash2, Bot, User, Clock, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { io } from 'socket.io-client';
 import parse from 'html-react-parser';
 
@@ -16,6 +17,26 @@ const LoadingDots = () => (
     <div className="w-2 h-2 bg-primary/70 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
   </div>
 );
+
+const ConnectionStatus = ({ isConnecting, isError }) => {
+  if (!isConnecting && !isError) return null;
+  
+  return (
+    <Alert variant={isError ? "destructive" : "default"} className="mb-4">
+      <AlertCircle className="h-4 w-4" />
+      <AlertDescription>
+        {isConnecting ? (
+          <div className="flex items-center space-x-2">
+            <span>Connecting to server</span>
+            <LoadingDots />
+          </div>
+        ) : (
+          "Unable to connect to server. Please check your connection and try again."
+        )}
+      </AlertDescription>
+    </Alert>
+  );
+};
 
 const ChatMessage = ({ text, isUser, isLoading, timestamp }) => (
   <div className={`group flex ${isUser ? 'justify-end' : 'justify-start'} mb-6 items-end space-x-2 relative`}>
@@ -102,9 +123,7 @@ const formatMarkdownResponse = (text) => {
 
   const formatBold = (text) => {
     return text
-      // Handle bold text with colons (e.g., **Title:** Content)
       .replace(/\*\*(.+?):\*\*/g, '<strong class="font-semibold text-foreground block mb-2">$1:</strong>')
-      // Handle regular bold text (e.g., This is **important** text)
       .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-foreground">$1</strong>');
   };
 
@@ -132,83 +151,69 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(true);
+  const [connectionError, setConnectionError] = useState(false);
   const scrollRef = useRef(null);
   const socketRef = useRef(null);
   const scrollTimeoutRef = useRef(null);
+  const reconnectAttemptsRef = useRef(0);
+  const maxReconnectAttempts = 5;
 
   useEffect(() => {
-    const savedMessages = localStorage.getItem('chatHistory');
-    if (savedMessages) {
-      setMessages(JSON.parse(savedMessages));
-    } else {
-      const welcomeMessage = {
-        text: formatMarkdownResponse("Hello! How can I help you analyze your social media performance? You can type your question or select from the quick questions above."),
-        isUser: false
-      };
-      setMessages([welcomeMessage]);
-      localStorage.setItem('chatHistory', JSON.stringify([welcomeMessage]));
-    }
-  }, []);
+    const initializeSocket = () => {
+      setIsConnecting(true);
+      setConnectionError(false);
+      
+      socketRef.current = io(SERVER_URL, {
+        reconnection: true,
+        reconnectionAttempts: maxReconnectAttempts,
+        reconnectionDelay: 1000
+      });
 
-  useEffect(() => {
-    if (messages.length > 0) {
-      localStorage.setItem('chatHistory', JSON.stringify(messages));
-      scrollToBottom();
-    }
-  }, [messages]);
+      socketRef.current.on('connect', () => {
+        setIsConnecting(false);
+        setConnectionError(false);
+        reconnectAttemptsRef.current = 0;
+        console.log('Connected to chat server');
+      });
 
-  const scrollToBottom = () => {
-    // Clear any existing scroll timeout
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-    }
-
-    // Set a new timeout to ensure DOM has updated
-    scrollTimeoutRef.current = setTimeout(() => {
-      if (scrollRef.current) {
-        const scrollContainer = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
-        if (scrollContainer) {
-          scrollContainer.scrollTo({
-            top: scrollContainer.scrollHeight,
-            behavior: 'smooth'
-          });
+      socketRef.current.on('connect_error', () => {
+        reconnectAttemptsRef.current++;
+        if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
+          setConnectionError(true);
+          setIsConnecting(false);
         }
-      }
-    }, 100);
-  };
+      });
 
-  useEffect(() => {
-    socketRef.current = io(SERVER_URL, {
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000
-    });
+      socketRef.current.on('disconnect', () => {
+        setIsConnecting(true);
+        console.log('Disconnected from server');
+      });
 
-    socketRef.current.on('connect', () => {
-      console.log('Connected to chat server');
-    });
+      socketRef.current.on('bot_typing', (isTyping) => {
+        setIsLoading(isTyping);
+        if (isTyping) {
+          scrollToBottom();
+        }
+      });
 
-    socketRef.current.on('bot_typing', (isTyping) => {
-      setIsLoading(isTyping);
-      if (isTyping) {
-        scrollToBottom();
-      }
-    });
+      socketRef.current.on('bot_response', (data) => {
+        const formattedResponse = formatMarkdownResponse(data.reply);
+        setMessages(prev => [...prev, { text: formattedResponse, isUser: false }]);
+        setIsLoading(false);
+      });
 
-    socketRef.current.on('bot_response', (data) => {
-      const formattedResponse = formatMarkdownResponse(data.reply);
-      setMessages(prev => [...prev, { text: formattedResponse, isUser: false }]);
-      setIsLoading(false);
-    });
+      socketRef.current.on('error', (error) => {
+        console.error('Socket error:', error);
+        setMessages(prev => [...prev, {
+          text: "Sorry, I encountered an error. Please try again.",
+          isUser: false
+        }]);
+        setIsLoading(false);
+      });
+    };
 
-    socketRef.current.on('error', (error) => {
-      console.error('Socket error:', error);
-      setMessages(prev => [...prev, {
-        text: "Sorry, I encountered an error. Please try again.",
-        isUser: false
-      }]);
-      setIsLoading(false);
-    });
+    initializeSocket();
 
     return () => {
       if (socketRef.current) {
@@ -219,7 +224,6 @@ export default function ChatInterface() {
       }
     };
   }, []);
-
   const sendMessage = (text) => {
     if (!socketRef.current?.connected) {
       console.error('Socket not connected');
@@ -276,6 +280,7 @@ export default function ChatInterface() {
         <CardDescription>Ask questions about your social media performance</CardDescription>
       </CardHeader>
       <CardContent className="p-6">
+        <ConnectionStatus isConnecting={isConnecting} isError={connectionError} />
         <QuickQuestions onSelect={handleQuestionSelect} />
         <ScrollArea className="h-[500px] pr-4 mb-4" ref={scrollRef}>
           <div className="space-y-4">
@@ -299,13 +304,13 @@ export default function ChatInterface() {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            disabled={isLoading}
+            placeholder={connectionError ? "Connection failed. Please try again later." : "Type your message..."}
+            disabled={isLoading || isConnecting || connectionError}
             className="flex-1 bg-muted/50 border-2 focus-visible:ring-primary/30"
           />
           <Button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || isConnecting || connectionError}
             className="px-4 bg-gradient-to-r from-primary to-primary/90 hover:opacity-90 transition-opacity shadow-md"
           >
             <Send className="w-4 h-4" />
