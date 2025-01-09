@@ -3,38 +3,48 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, ChevronDown, Trash2 } from 'lucide-react';
+import { Send, ChevronDown, Trash2, Bot, User, Clock } from 'lucide-react';
 import { io } from 'socket.io-client';
 import parse from 'html-react-parser';
+
 const SERVER_URL = import.meta.env.VITE_BACKEND_URL;
 
 const LoadingDots = () => (
-  <div className="flex space-x-1">
-    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+  <div className="flex space-x-1.5 px-2 py-1">
+    <div className="w-2 h-2 bg-primary/70 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+    <div className="w-2 h-2 bg-primary/70 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+    <div className="w-2 h-2 bg-primary/70 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
   </div>
 );
 
-const ChatMessage = ({ text, isUser, isLoading }) => (
-  <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4 items-end space-x-2`}>
+const ChatMessage = ({ text, isUser, isLoading, timestamp }) => (
+  <div className={`group flex ${isUser ? 'justify-end' : 'justify-start'} mb-6 items-end space-x-2 relative`}>
     {!isUser && (
-      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm">
-        AI
+      <div className="flex-shrink-0">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground text-sm shadow-md">
+          <Bot className="w-4 h-4" />
+        </div>
       </div>
     )}
-    <div
-      className={`max-w-[80%] p-4 rounded-lg ${
-        isUser 
-          ? 'bg-primary text-primary-foreground rounded-br-none' 
-          : 'bg-muted rounded-bl-none'
-      } shadow-sm`}
-    >
-      {isLoading ? <LoadingDots /> : parse(text)}
+    <div className="flex flex-col space-y-1 max-w-[85%]">
+      <div
+        className={`p-4 rounded-2xl ${isUser
+            ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground rounded-br-sm'
+            : 'bg-muted/80 backdrop-blur-sm rounded-bl-sm shadow-sm'
+          }`}
+      >
+        {isLoading ? <LoadingDots /> : parse(text)}
+      </div>
+      <div className={`text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity ${isUser ? 'text-right' : 'text-left'}`}>
+        <Clock className="w-3 h-3 inline-block mr-1" />
+        {new Date().toLocaleTimeString()}
+      </div>
     </div>
     {isUser && (
-      <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center text-white text-sm">
-        You
+      <div className="flex-shrink-0">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-600 flex items-center justify-center text-white text-sm shadow-md">
+          <User className="w-4 h-4" />
+        </div>
       </div>
     )}
   </div>
@@ -42,7 +52,7 @@ const ChatMessage = ({ text, isUser, isLoading }) => (
 
 const QuickQuestions = ({ onSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
-  
+
   const questions = [
     "What's the engagement rate trend for all kind of posts?",
     "What type of reel themes were the most popular",
@@ -53,22 +63,22 @@ const QuickQuestions = ({ onSelect }) => {
   ];
 
   return (
-    <div className="mb-4">
+    <div className="mb-6">
       <Button
         variant="outline"
-        className="w-full flex items-center justify-between border border-blue-500"
+        className="w-full flex items-center justify-between border-2 border-primary/20 hover:border-primary/40 transition-colors"
         onClick={() => setIsOpen(!isOpen)}
       >
         <span>Quick Questions</span>
-        <ChevronDown className={`w-4 h-4 transform transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </Button>
       {isOpen && (
-        <div className="mt-2 p-2 bg-muted rounded-lg grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto">
+        <div className="mt-2 p-2 bg-muted/50 backdrop-blur-sm rounded-lg grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto border border-border/50">
           {questions.map((question, index) => (
             <Button
               key={index}
               variant="ghost"
-              className="w-full text-left justify-start h-auto py-2 px-3 text-sm hover:bg-primary hover:text-primary-foreground"
+              className="w-full text-left justify-start h-auto py-2.5 px-3 text-sm hover:bg-primary hover:text-primary-foreground transition-colors duration-200"
               onClick={() => {
                 onSelect(question);
                 setIsOpen(false);
@@ -80,55 +90,41 @@ const QuickQuestions = ({ onSelect }) => {
         </div>
       )}
     </div>
-  );
+  )
 };
 
 const formatMarkdownResponse = (text) => {
   const formatHeadings = (text) => {
-    return text.replace(/^##\s+(.+)$/gm, '<h2 class="text-xl font-semibold my-2">$1</h2>')
-              .replace(/^#\s+(.+)$/gm, '<h1 class="text-2xl font-bold my-3">$1</h1>');
+    return text
+      .replace(/^##\s+(.+)$/gm, '</div><div class="mt-6 mb-3"><h2 class="text-xl font-semibold text-foreground/90 border-b pb-2 mb-3">$1</h2>')
+      .replace(/^#\s+(.+)$/gm, '</div><div class="mt-6 mb-3"><h1 class="text-2xl font-bold text-foreground border-b pb-2 mb-3">$1</h1>');
   };
 
   const formatBold = (text) => {
-    return text.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold">$1</strong>');
+    return text
+      // Handle bold text with colons (e.g., **Title:** Content)
+      .replace(/\*\*(.+?):\*\*/g, '<strong class="font-semibold text-foreground block mb-2">$1:</strong>')
+      // Handle regular bold text (e.g., This is **important** text)
+      .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-foreground">$1</strong>');
   };
 
-  const formatBullets = (text) => {
-    const bulletPattern = /^\*\s+(.+)$/gm;
-    let matches = text.match(bulletPattern);
-    
-    if (matches) {
-      let bulletHtml = '<ul class="list-disc list-inside space-y-2 my-2">';
-      matches.forEach(match => {
-        const content = match.replace(/^\*\s+/, '');
-        bulletHtml += `\n  <li class="text-sm">${content}</li>`;
-      });
-      bulletHtml += '\n</ul>';
-      
-      text = text.replace(/(\*\s+.+\n?)+/g, bulletHtml);
-    }
-    return text;
+  const formatParagraphs = (text) => {
+    const paragraphs = text.split('\n').filter(p => p.trim());
+
+    return paragraphs.map(p => {
+      if (p.trim().startsWith('#')) return p;
+      return `<div class="mb-4">${p}</div>`;
+    }).join('\n');
   };
 
-  const formatSections = (text) => {
-    text = text.replace(/\[Insert.*?\]/g, '<div class="bg-muted rounded p-4 my-2 text-center text-sm">Chart Placeholder</div>');
-    
-    text = text.split('\n\n').map(section => {
-      if (section.trim().startsWith('<')) return section;
-      return `<section class="my-2">${section}</section>`;
-    }).join('\n\n');
-    
-    return text;
-  };
-
-  let formattedText = text;
+  let formattedText = formatParagraphs(text);
   formattedText = formatHeadings(formattedText);
   formattedText = formatBold(formattedText);
-  formattedText = formatBullets(formattedText);
-  formattedText = formatSections(formattedText);
-  
-  formattedText = `<div class="formatted-content space-y-2">${formattedText}</div>`;
-  
+
+  formattedText = `<div class="formatted-content space-y-2">${formattedText}</div>`
+    .replace(/<div>\s*<\/div>/g, '')
+    .replace(/(<\/div>)\s*(<div)/g, '$1$2');
+
   return formattedText;
 };
 
@@ -138,6 +134,7 @@ export default function ChatInterface() {
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef(null);
   const socketRef = useRef(null);
+  const scrollTimeoutRef = useRef(null);
 
   useEffect(() => {
     const savedMessages = localStorage.getItem('chatHistory');
@@ -156,8 +153,29 @@ export default function ChatInterface() {
   useEffect(() => {
     if (messages.length > 0) {
       localStorage.setItem('chatHistory', JSON.stringify(messages));
+      scrollToBottom();
     }
   }, [messages]);
+
+  const scrollToBottom = () => {
+    // Clear any existing scroll timeout
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+
+    // Set a new timeout to ensure DOM has updated
+    scrollTimeoutRef.current = setTimeout(() => {
+      if (scrollRef.current) {
+        const scrollContainer = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
+        if (scrollContainer) {
+          scrollContainer.scrollTo({
+            top: scrollContainer.scrollHeight,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }, 100);
+  };
 
   useEffect(() => {
     socketRef.current = io(SERVER_URL, {
@@ -172,6 +190,9 @@ export default function ChatInterface() {
 
     socketRef.current.on('bot_typing', (isTyping) => {
       setIsLoading(isTyping);
+      if (isTyping) {
+        scrollToBottom();
+      }
     });
 
     socketRef.current.on('bot_response', (data) => {
@@ -193,17 +214,11 @@ export default function ChatInterface() {
       if (socketRef.current) {
         socketRef.current.disconnect();
       }
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
     };
   }, []);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      const scrollContainer = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight;
-      }
-    }
-  }, [messages]);
 
   const sendMessage = (text) => {
     if (!socketRef.current?.connected) {
@@ -237,13 +252,14 @@ export default function ChatInterface() {
     localStorage.setItem('chatHistory', JSON.stringify([welcomeMessage]));
   };
 
+
   return (
-    <Card className="w-full max-w-8xl mx-auto mt-6 shadow-lg border-t-4 border-t-primary">
-      <CardHeader className="border-b">
+    <Card className="w-full max-w-8xl mx-auto mt-6 shadow-xl border-t-4 border-t-primary bg-gradient-to-b from-background to-background/98">
+      <CardHeader className="border-b border-border/40">
         <div className="flex justify-between items-center">
-          <CardTitle className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-              AI
+          <CardTitle className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground shadow-lg">
+              <Bot className="w-5 h-5" />
             </div>
             <span>AI Assistant</span>
           </CardTitle>
@@ -251,10 +267,10 @@ export default function ChatInterface() {
             variant="outline"
             size="sm"
             onClick={clearHistory}
-            className="flex items-center space-x-1"
+            className="flex items-center space-x-2 border-2 border-destructive/30 hover:border-destructive/50 hover:bg-destructive/10 transition-colors"
           >
-            <Trash2 className="w-4 h-4" />
-            <span>Clear History</span>
+            <Trash2 className="w-4 h-4 text-destructive" />
+            <span className="text-destructive">Clear History</span>
           </Button>
         </div>
         <CardDescription>Ask questions about your social media performance</CardDescription>
@@ -264,29 +280,33 @@ export default function ChatInterface() {
         <ScrollArea className="h-[500px] pr-4 mb-4" ref={scrollRef}>
           <div className="space-y-4">
             {messages.map((msg, idx) => (
-              <ChatMessage key={idx} {...msg} />
+              <ChatMessage
+                key={idx}
+                {...msg}
+                timestamp={new Date().toISOString()}
+              />
             ))}
             {isLoading && (
-              <ChatMessage 
-                text="" 
-                isUser={false} 
+              <ChatMessage
+                text=""
+                isUser={false}
                 isLoading={true}
               />
             )}
           </div>
         </ScrollArea>
-        <form onSubmit={handleSubmit} className="flex gap-2 pt-4 border-t">
+        <form onSubmit={handleSubmit} className="flex gap-3 pt-4 border-t border-border/40">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
             disabled={isLoading}
-            className="flex-1"
+            className="flex-1 bg-muted/50 border-2 focus-visible:ring-primary/30"
           />
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             disabled={isLoading}
-            className="px-4"
+            className="px-4 bg-gradient-to-r from-primary to-primary/90 hover:opacity-90 transition-opacity shadow-md"
           >
             <Send className="w-4 h-4" />
           </Button>

@@ -56,7 +56,6 @@ const Dashboard = () => {
 
   const postTypeData = Array.from(new Set(posts.map(post => post.type))).map(type => {
     const typePosts = posts.filter(post => post.type === type);
-    console.log("type",typePosts);
     const uniqueHashtags = [
       ...new Set(
         typePosts

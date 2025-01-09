@@ -143,7 +143,7 @@ Set the following environment variables in Backend:
 ![home2](https://res.cloudinary.com/dzgllt3ca/image/upload/v1736362002/Screenshot_2025-01-09_001315_dghn1b.png)
 
 #### **Chatbot Interface**  
-![chabot](https://res.cloudinary.com/dzgllt3ca/image/upload/v1736362001/Screenshot_2025-01-09_001354_irnypg.png)
+![chabot](https://res.cloudinary.com/dzgllt3ca/image/upload/v1736428570/Screenshot_2025-01-09_184455_tmewxe.png)
 
 #### **Dashboard**  
 ![dashboard1](https://res.cloudinary.com/dzgllt3ca/image/upload/v1736362000/Screenshot_2025-01-09_001335_rvibig.png)

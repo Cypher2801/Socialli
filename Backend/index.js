@@ -10,7 +10,7 @@ dotenv.config();
 
 const io = new Server(server, {
     cors: {
-        origin: process.env.FRONTEND_URL,
+        origin: true,
         methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true
