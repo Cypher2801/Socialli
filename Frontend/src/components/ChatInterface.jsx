@@ -3,9 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, ChevronDown } from 'lucide-react';
+import { Send, ChevronDown, Trash2 } from 'lucide-react';
 import { io } from 'socket.io-client';
 import parse from 'html-react-parser';
+const SERVER_URL = import.meta.env.VITE_BACKEND_URL;
 
 const LoadingDots = () => (
   <div className="flex space-x-1">
@@ -139,7 +140,27 @@ export default function ChatInterface() {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    socketRef.current = io('http://localhost:3000', {
+    const savedMessages = localStorage.getItem('chatHistory');
+    if (savedMessages) {
+      setMessages(JSON.parse(savedMessages));
+    } else {
+      const welcomeMessage = {
+        text: formatMarkdownResponse("Hello! How can I help you analyze your social media performance? You can type your question or select from the quick questions above."),
+        isUser: false
+      };
+      setMessages([welcomeMessage]);
+      localStorage.setItem('chatHistory', JSON.stringify([welcomeMessage]));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('chatHistory', JSON.stringify(messages));
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    socketRef.current = io(SERVER_URL, {
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000
@@ -167,11 +188,6 @@ export default function ChatInterface() {
       }]);
       setIsLoading(false);
     });
-
-    setMessages([{ 
-      text: formatMarkdownResponse("Hello! How can I help you analyze your social media performance? You can type your question or select from the quick questions above."),
-      isUser: false 
-    }]);
 
     return () => {
       if (socketRef.current) {
@@ -212,15 +228,35 @@ export default function ChatInterface() {
     sendMessage(question);
   };
 
+  const clearHistory = () => {
+    const welcomeMessage = {
+      text: formatMarkdownResponse("Hello! How can I help you analyze your social media performance? You can type your question or select from the quick questions above."),
+      isUser: false
+    };
+    setMessages([welcomeMessage]);
+    localStorage.setItem('chatHistory', JSON.stringify([welcomeMessage]));
+  };
+
   return (
     <Card className="w-full max-w-8xl mx-auto mt-6 shadow-lg border-t-4 border-t-primary">
       <CardHeader className="border-b">
-        <CardTitle className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-            AI
-          </div>
-          <span>AI Assistant</span>
-        </CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle className="flex items-center space-x-2">
+            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+              AI
+            </div>
+            <span>AI Assistant</span>
+          </CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={clearHistory}
+            className="flex items-center space-x-1"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Clear History</span>
+          </Button>
+        </div>
         <CardDescription>Ask questions about your social media performance</CardDescription>
       </CardHeader>
       <CardContent className="p-6">
