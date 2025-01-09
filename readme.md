@@ -1,5 +1,5 @@
 ### 🌐 **Try it Now!**  
-Check out our live deployment: [**Try it**](https://supermind-hack.vercel.app/)  
+Check out our live deployment: [**Try it**](https://super-mind-hackathon-social-analyzer.vercel.app/)  
 
 ---
 
