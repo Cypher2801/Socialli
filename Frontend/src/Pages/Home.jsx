@@ -88,7 +88,7 @@ const HomePage = () => {
         {
             name: "Naveen Patidar",
             image: "https://res.cloudinary.com/dup5fitl6/image/upload/v1736358509/fxhrjeksfzaxm0moqeys.jpg",
-            github : "https://github.com/kraitop",
+            github : "https://github.com/KraitOPP",
             linkedIn : "https://www.linkedin.com/in/naveen-patidar-448a57288/"
         },
         {
